@@ -1,0 +1,230 @@
+<?php
+include '../../includes/config/dbconn.php';
+
+// Create connection
+$dbConnection = new mysqli($servername, $username, $password, $dbname);
+
+// Check the connection
+if ($dbConnection->connect_error) {
+    die("Connection failed: " . $dbConnection->connect_error);
+}
+
+// Fetch room number, name, check-in, and check-out dates from the database
+$sql = "SELECT room_number, check_in_date, check_out_date FROM tenantprofile";
+$result = $dbConnection->query($sql);
+
+// Prepare events array for Evo Calendar
+$evoCalendarEvents = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        // Calculate the duration in days between check-in and check-out
+        $duration = date_diff(new DateTime($row['check_in_date']), new DateTime($row['check_out_date']))->days;
+
+        // Generate events for each day within the duration
+        for ($i = 0; $i <= $duration; $i++) {
+            $currentDate = date("M d, Y", strtotime($row['check_in_date'] . " +$i days"));
+
+            $evoCalendarEvents[] = [
+                'id' => 'event_' . $row['room_number'] . '_' . $i,
+                'name' => 'Room Number: ' . $row['room_number'],
+                'description' => 'Lorem ipsum dolor sit..',
+                'date' => $currentDate,
+                'type' => 'event',
+            ];
+        }
+    }
+}
+
+// Close the database connection
+$dbConnection->close();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<?php include '../head.php'; ?>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Add Evo Calendar stylesheets -->
+    <link rel="stylesheet" href="evo-calendar.min.css">
+    <link rel="stylesheet" href="evo-calendar.css">
+    
+    <!-- Add FullCalendar library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css" />
+    <style>
+        .dot {
+            height: 10px;
+            width: 10px;
+            background-color: red;
+            border-radius: 50%;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-scroller">
+        <!-- partial:../../partials/_navbar.html -->
+        <?php include '../topbar.php'; ?>
+        <!-- partial -->
+        <div class="container-fluid page-body-wrapper">
+            <!-- partial:../../partials/_sidebar.html -->
+            <?php include '../sidebar.php'; ?>
+            <!-- partial -->
+            <div class="main-panel">
+                <div class="alert-container"></div>
+
+                <div class="content-wrapper">
+                    <div class="row flex-grow-1">
+                        <div class="col-md-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Event Calendar</h4>
+                                    <div class="hero">
+                                        <div id="calendar" class="calendar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+         
+                <!-- content-wrapper ends -->
+                <!-- partial:../../partials/_footer.html -->
+                <?php include '../footer.php'; ?>
+                <?php include '../modals.php'; ?>
+            </div>
+
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+
+    <!-- Include necessary scripts -->
+    <?php include '../scripts.php'; ?>
+
+    <!-- Include jQuery before Evo Calendar and FullCalendar scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+    <!-- Include FullCalendar library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.js"></script>
+    <!-- Include Evo Calendar scripts -->
+    <script src="evo-calendar.min.js"></script>
+    <!-- Bootstrap JS (ensure it's included in your project) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+   
+    <script>
+        $(document).ready(function () {
+            // Define the evoCalendarEvents array
+            var evoCalendarEvents = <?php echo json_encode($evoCalendarEvents); ?>;
+            var formattedEvents = [];
+
+            // Format the events array for Evo Calendar
+            for (var i = 0; i < evoCalendarEvents.length; i++) {
+                formattedEvents.push(evoCalendarEvents[i]);
+            }
+
+            // Initialize Evo Calendar
+            $('#calendar').evoCalendar({
+                // Your existing Evo Calendar configuration
+                calendarEvents: formattedEvents,
+            });
+
+            // Update calendar events dynamically
+            $('#calendar').evoCalendar('updateCalendarEvents', formattedEvents);
+        });
+    </script>
+</body>
+
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<?php include '../head.php'; ?>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Add Evo Calendar stylesheets -->
+    <link rel="stylesheet" href="evo-calendar.min.css">
+    <link rel="stylesheet" href="evo-calendar.css">
+    
+    <!-- Add FullCalendar library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css" />
+</head>
+<body>
+
+    <div class="container-scroller">
+        <!-- partial:../../partials/_navbar.html -->
+        <?php include '../topbar.php'; ?>
+        <!-- partial -->
+        <div class="container-fluid page-body-wrapper">
+            <!-- partial:../../partials/_sidebar.html -->
+            <?php include '../sidebar.php'; ?>
+            <!-- partial -->
+            <div class="main-panel">
+                <div class="alert-container"></div>
+
+                <div class="content-wrapper">
+                    <div class="row flex-grow-1">
+                        <div class="col-md-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Event Calendar</h4>
+                                    <div class="hero">
+                                        <div id="calendar" class="calendar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+         
+                <!-- content-wrapper ends -->
+                <!-- partial:../../partials/_footer.html -->
+                <?php include '../footer.php'; ?>
+                <?php include '../modals.php'; ?>
+            </div>
+
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+
+    <!-- Include necessary scripts -->
+    <?php include '../scripts.php'; ?>
+
+    <!-- Add FullCalendar and Evo Calendar JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+    <script src="evo-calendar.min.js"></script>
+
+    <!-- Initialize Evo Calendar -->
+    <script>
+        $(document).ready(function() {
+            $('#calendar').evoCalendar({
+                theme: 'Default', // Choose from Default, Midnight Blue, Orange Coral, Royal Navy
+                language: 'en',    // Choose from en, es, de, pt
+                format: 'mm/dd/yyyy',
+                titleFormat: 'MM yyyy',
+                eventHeaderFormat: 'MM d, yyyy',
+                firstDayOfWeek: 0, // 0 (Sunday) - 6 (Saturday)
+                todayHighlight: true,
+                sidebarDisplayDefault: true,
+                sidebarToggler: true,
+                eventDisplayDefault: true,
+                eventListToggler: true,
+                calendarEvents: <?php echo json_encode($evoCalendarEvents); ?>
+            });
+        });
+    </script>
+
+  
+</body>
+
+</html>

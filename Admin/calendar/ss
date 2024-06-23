@@ -1,0 +1,143 @@
+<?php
+// calendar.php
+
+// Get the current month and year
+$month = isset($_GET['month']) ? $_GET['month'] : date('n');
+$year = isset($_GET['year']) ? $_GET['year'] : date('Y');
+
+// Get the first day of the month and the number of days in the month
+$firstDay = mktime(0, 0, 0, $month, 1, $year);
+$daysInMonth = date('t', $firstDay);
+
+// Get the name of the month and the day of the week for the first day
+$monthName = date('F', $firstDay);
+$dayOfWeek = date('N', $firstDay);
+
+// Calculate the number of blank cells before the first day
+$blankCells = $dayOfWeek - 1;
+
+// Create an array of day names
+$dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+// Direct database connection parameters
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "dormbell";
+
+// Create a connection
+$dbConnection = new mysqli($servername, $username, $password, $dbname);
+
+// Check the connection
+if ($dbConnection->connect_error) {
+    die("Connection failed: " . $dbConnection->connect_error);
+}
+
+// Function to get tenant details for a selected day
+function getTenantDetails($selectedDay, $dbConnection)
+{
+    $selectedDate = date('Y-m-d', strtotime($selectedDay));
+
+    $tenantQuery = "SELECT * FROM tenantprofile WHERE check_in_date <= '$selectedDate' AND check_out_date >= '$selectedDate'";
+    $tenantResult = $dbConnection->query($tenantQuery);
+
+    if (!$tenantResult) {
+        die("Error fetching tenants: " . $dbConnection->error);
+    }
+
+    // Fetch all tenants and store in an array
+    $tenants = [];
+
+    while ($row = $tenantResult->fetch_assoc()) {
+        $tenants[] = $row;
+    }
+
+    return $tenants;
+}
+
+// Close the database connection
+// $dbConnection->close(); // Commenting out this line to keep the connection open
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<?php include '../head.php'; ?>
+<body>
+    <div class="container-scroller">
+        <?php include '../topbar.php'; ?>
+        <div class="container-fluid page-body-wrapper">
+            <?php include '../sidebar.php'; ?>
+            <div class="main-panel">
+                <div class="alert-container"></div>
+
+                <div class="content-wrapper">
+                    <div class="row flex-grow-1">
+                        <div class="col-lg-12 grid-margin">
+                            <div class="card">
+                                <div class="card-body shadow-lg">
+                                    <h2 class="mb-4">Event Calendar - Dormitory Management System</h2>
+                                    <h2 class="mb-4"><?php echo $monthName . ' ' . $year; ?></h2>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <?php foreach ($dayNames as $day): ?>
+                                                    <th scope="col"><?php echo $day; ?></th>
+                                                <?php endforeach; ?>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <?php
+                                                for ($i = 0; $i < $blankCells; $i++): ?>
+                                                    <td></td>
+                                                <?php endfor;
+
+                                                for ($day = 1; $day <= $daysInMonth; $day++):
+                                                    $currentDay = date('Y-m-d', strtotime("$year-$month-$day"));
+                                                    $tenantDetails = getTenantDetails($currentDay, $dbConnection);
+                                                    ?>
+                                                    <td class="<?php echo ($day == date('j') && $month == date('n') && $year == date('Y')) ? ' selected-day' : ''; ?>">
+                                                        <a href="#" class="day-button">
+                                                            <?php echo $day; ?>
+                                                            <?php foreach ($tenantDetails as $tenant): ?>
+                                                                <div class="tenant-details">
+                                                                    <strong>Tenant Name:</strong> <?php echo $tenant['Name']; ?><br>
+                                                                    <strong>Check-in Date:</strong> <?php echo $tenant['check_in_date']; ?><br>
+                                                                    <strong>Check-out Date:</strong> <?php echo $tenant['check_out_date']; ?><br>
+                                                                    <strong>Room Number:</strong> <?php echo $tenant['room_number']; ?><br>
+                                                                </div>
+                                                            <?php endforeach; ?>
+                                                        </a>
+                                                    </td>
+                                                    <?php
+                                                    if (($blankCells + $day) % 7 === 0):
+                                                        ?>
+                                                        </tr><tr>
+                                                    <?php endif; ?>
+                                                <?php endfor; ?>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="prev-next mt-3">
+                                        <a href="?month=<?php echo ($month > 1) ? ($month - 1) : 12; ?>&year=<?php echo ($month > 1) ? $year : ($year - 1); ?>" class="btn btn-primary">Previous Month</a>
+                                        <span>|</span>
+                                        <a href="?month=<?php echo ($month < 12) ? ($month + 1) : 1; ?>&year=<?php echo ($month < 12) ? $year : ($year + 1); ?>" class="btn btn-primary">Next Month</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php include '../footer.php'; ?>
+                <?php include '../modals.php'; ?>
+            </div>
+        </div>
+    </div>
+    <?php include '../scripts.php'; ?>
+
+    
+</body>
+</html>
+

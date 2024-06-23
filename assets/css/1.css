@@ -1,0 +1,162 @@
+*{
+    font-size: 20px;
+}
+
+.img-1 video {
+    height: 700px;
+    width: 100%;
+}
+
+.container1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.card1 {
+    width: 490px;
+    height: 720px;
+    background: #F4F6FB;
+    border: 1px solid white;
+    box-shadow: 10px 10px 64px 0px rgba(180, 180, 207, 0.75);
+    -webkit-box-shadow: 10px 10px 64px 0px rgba(186, 186, 202, 0.75);
+    -moz-box-shadow: 10px 10px 64px 0px rgba(208, 208, 231, 0.75);
+    margin-right: 50px; /* Added margin to the right side of the form */
+}
+
+.form {
+    padding: 25px;
+}
+
+.card_header1 {
+    display: flex;
+    align-items: center;
+}
+
+.card1 svg {
+    color: #7878bd;
+    margin-bottom: 20px;
+    margin-right: 5px;
+}
+
+.form_heading {
+    padding-bottom: 20px;
+    font-size: 21px;
+    color: #7878bd;
+}
+
+.field {
+    padding-bottom: 10px;
+}
+
+.input {
+    border-radius: 5px;
+    background-color: #e9e9f7;
+    padding: 5px;
+    width: 100%;
+    color: #7a7ab3;
+    border: 1px solid #dadaf7;
+}
+
+.input:focus-visible {
+    outline: 1px solid #aeaed6;
+}
+
+.input::placeholder {
+    color: #bcbcdf;
+}
+
+label {
+    color: #2e1c41;
+    font-size: 20px;
+    display: block;
+    font-weight:900;
+
+    padding-top: 15px;
+}
+
+button {
+    background-color: #7878bd;
+    margin-top: 10px;
+    font-size: 14px;
+    padding: 7px 12px;
+    height: auto;
+    font-weight: 500;
+    color: white;
+    border: none;
+}
+
+button:hover {
+    background-color: #5f5f9c;
+}
+
+/* Set the height of sections to 100vh */
+.landing-page {
+    height: 100vh;
+    width: 100%;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.img-1 {
+    padding-left: 100px;
+}
+
+.sign-in1 {
+    margin-left: 50px;
+}
+
+.field1{
+    display: flex;
+    align-items: center;
+}
+.field1 input{
+    margin-right: 10px;
+}
+
+
+.field2 input{
+    background-color: #7878bd;
+    margin-top: 10px;
+    font-size: 14px;
+    padding: 7px 12px;
+    height: auto;
+    font-weight: 500;
+    color: white;
+    border: none;
+}
+
+input:hover {
+    background-color: #5f5f9c;
+}
+
+.main{
+    height: 100vh;
+    width: 100%;
+    padding: 200px;
+}
+
+.main table{
+    height: 500px;
+    width: 1340px;
+    text-align: left;
+    padding: 40px 40px 40px 40px;
+    margin-bottom: 50px;
+      color: #32325f;
+  background: rgba(217, 217, 217, 0.58);
+  border: 1px solid #5f5f9c;
+  box-shadow: 12px 17px 12px rgba(0, 0, 0, 0.22);
+}
+
+#room1{
+    text-align: center;
+    padding: 20px;
+    font-size: 80px;
+      color: #9797f2;
+}
